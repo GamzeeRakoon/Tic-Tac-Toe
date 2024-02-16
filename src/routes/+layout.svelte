@@ -8,17 +8,16 @@
 	let { update } = gameState;
 
 	const resetGame = () => {
-		update( () => {
+		update(() => {
 			return {
 				winner: null,
 				squares: new Array(9).fill(null),
-				xIsNext: true,
+				xIsNext: true
 			};
 		});
-  	};
+	};
 
 	initializeStores();
-
 </script>
 
 <Modal />
@@ -27,15 +26,11 @@
 	<svelte:fragment slot="header">
 		<AppBar gridColumns="grid-cols-3" slotDefault="place-self-center" slotTrail="place-content-end">
 			<svelte:fragment slot="lead">
-				<img alt="Raccoon eating cheese" src="images/ma_cheese.png" class="w-14 rounded-xl"/>
+				<img alt="Raccoon eating cheese" src="images/ma_cheese.png" class="w-14 rounded-xl" />
 			</svelte:fragment>
 			<p class="text-xl">TicTacToe</p>
 			<svelte:fragment slot="trail">
-				<button 
-					type="button" 
-					class="btn variant-filled rounded-xl"
-					on:click={() => resetGame()}
-				>
+				<button type="button" class="btn variant-filled rounded-xl" on:click={() => resetGame()}>
 					reset
 				</button>
 			</svelte:fragment>
