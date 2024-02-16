@@ -1,9 +1,27 @@
 <script lang="ts">
-	import { AppShell } from '@skeletonlabs/skeleton';
-	import { AppBar } from '@skeletonlabs/skeleton';
+	import { initializeStores } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { Modal } from '@skeletonlabs/skeleton';
+	import { gameState } from '$lib/store';
 	import '../app.postcss';
+
+	let { update } = gameState;
+
+	const resetGame = () => {
+		update( () => {
+			return {
+				winner: null,
+				squares: new Array(9).fill(null),
+				xIsNext: true,
+			};
+		});
+  	};
+
+	initializeStores();
+
 </script>
 
+<Modal />
 
 <AppShell>
 	<svelte:fragment slot="header">
@@ -13,7 +31,11 @@
 			</svelte:fragment>
 			<p class="text-xl">TicTacToe</p>
 			<svelte:fragment slot="trail">
-				<button type="button" class="btn variant-filled rounded-xl">
+				<button 
+					type="button" 
+					class="btn variant-filled rounded-xl"
+					on:click={() => resetGame()}
+				>
 					reset
 				</button>
 			</svelte:fragment>
