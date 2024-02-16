@@ -8,7 +8,7 @@
 
 	const modalStore = getModalStore();
 
-	let winner: String | null;
+	let winner: string | null;
 	let squares: any;
 	let xIsNext: boolean;
 	$: status = 'Next Player: ' + (xIsNext ? 'X' : 'O');
