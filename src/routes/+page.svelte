@@ -1,96 +1,74 @@
 <script lang="ts">
-	import Board from '../Components/Board.svelte';
+	import { io } from 'socket.io-client';
 	import type { ModalSettings } from '@skeletonlabs/skeleton';
 	import { getModalStore } from '@skeletonlabs/skeleton';
-	import { gameState } from '$lib/store';
-
-	let { subscribe, update } = gameState;
+	import { playerName, redirectStore, disableBoard } from '$lib/store';
+	import { goto } from '$app/navigation';
 
 	const modalStore = getModalStore();
+	const socket = io();
 
-	let winner: string | null;
-	let squares: any;
-	let xIsNext: boolean;
-	$: status = 'Next Player: ' + (xIsNext ? 'X' : 'O');
+	let drake: any;
 
-	subscribe((value) => {
-		winner = value.winner;
-		squares = value.squares;
-		xIsNext = value.xIsNext;
+	const emptyUsername = () => {
+		const modal: ModalSettings = {
+			type: 'alert',
+			title: 'Empty Username',
+			body: 'Please enter a username before starting!'
+		};
+		modalStore.trigger(modal);
+		return '';
+	};
+
+	const loading = () => {
+		const modal: ModalSettings = {
+			type: 'component',
+			component: 'ModalLoading',
+			title: 'Empty Username',
+			body: 'Please enter a username before starting!'
+		};
+		modalStore.trigger(modal);
+		return '';
+	};
+
+	const updatePlayerName = (newName: string) => {
+		playerName.set({ name: newName });
+	};
+
+	const searchForPlayer = () => {
+		if (drake === undefined || null) {
+			return emptyUsername();
+		}
+
+		loading();
+		updatePlayerName(drake);
+		socket.emit('find', { name: drake });
+	};
+
+	socket.on('find', (e) => {
+		let allPlayersArray = e.allPlayers;
+
+		let foundObj = allPlayersArray.find((obj) => obj.p1.p1name == drake || obj.p2.p2name == drake);
+
+		if (foundObj.p1.p1name == drake) {
+			disableBoard.set(false);
+		} else {
+			disableBoard.set(true);
+		}
+
+		redirectStore.set(false);
+		goto('/start');
 	});
-
-	const handleClick = (i: any) => {
-		// Check if the square is filled with a string
-		if (!squares[i]) {
-			const newSquares = squares.slice();
-			newSquares[i] = xIsNext ? 'X' : 'O';
-
-			const newWinner = calculateWinner(newSquares);
-
-			update((state) => {
-				return {
-					winner: newWinner,
-					squares: newSquares,
-					xIsNext: !state.xIsNext
-				};
-			});
-		}
-	};
-
-	const calculateWinner = (squares: any) => {
-		const winningCombo = [
-			[0, 1, 2],
-			[3, 4, 5],
-			[6, 7, 8],
-			[0, 3, 6],
-			[1, 4, 7],
-			[2, 5, 8],
-			[0, 4, 8],
-			[2, 4, 6]
-		];
-		for (let i = 0; i < winningCombo.length; i++) {
-			const [a, b, c] = winningCombo[i];
-
-			if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) return squares[a];
-		}
-
-		const isDraw = squares.every((square: null) => square !== null);
-		return isDraw ? 'draw' : null;
-	};
-
-	const winnerModal = (winner: string) => {
-		const modal: ModalSettings = {
-			type: 'alert',
-			title: 'Winner!',
-			body: `player ${winner} has won the game!`
-		};
-		modalStore.trigger(modal);
-		return '';
-	};
-
-	const drawModal = () => {
-		const modal: ModalSettings = {
-			type: 'alert',
-			title: 'Draw!',
-			body: `Its a draw!`
-		};
-		modalStore.trigger(modal);
-		return '';
-	};
 </script>
 
 <div class="h-full flex flex-col items-center justify-center">
 	<div class="card p-4 text-center">
-		{#if winner === 'draw'}
-			{drawModal()}
-		{:else if winner}
-			{winnerModal(winner)}
-		{/if}
-		<h2 class="text-xl font-bold mb-5">{status}</h2>
-		<div class="grid grid-cols-3">
-			{#each squares as square, i}
-				<Board value={square} handleClick={() => handleClick(i)} />
-			{/each}
-		</div>
+		<label class="label space-y-5">
+			<h1 class="h2">Choose a username</h1>
+			<input class="input" type="text" placeholder="Username..." bind:value={drake} />
+			<button class="btn variant-outline-tertiary" on:click={() => searchForPlayer()}>
+				Search for player
+			</button>
+		</label>
 	</div>
 </div>
