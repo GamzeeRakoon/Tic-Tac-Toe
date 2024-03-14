@@ -1,40 +1,24 @@
 <script lang="ts">
-	import { initializeStores } from '@skeletonlabs/skeleton';
-	import { AppShell, AppBar } from '@skeletonlabs/skeleton';
+	import { initializeStores, type ModalComponent } from '@skeletonlabs/skeleton';
+	import { AppShell } from '@skeletonlabs/skeleton';
 	import { Modal } from '@skeletonlabs/skeleton';
-	import { gameState } from '$lib/store';
+	import Header from '../Components/Header.svelte';
+	import ModalLoading from '../Components/ModalLoading.svelte';
+
 	import '../app.postcss';
 
-	let { update } = gameState;
-
-	const resetGame = () => {
-		update(() => {
-			return {
-				winner: null,
-				squares: new Array(9).fill(null),
-				xIsNext: true
-			};
-		});
+	const modalRegistry: Record<string, ModalComponent> = {
+		ModalLoading: { ref: ModalLoading }
 	};
 
 	initializeStores();
 </script>
 
-<Modal />
+<Modal components={modalRegistry} />
 
 <AppShell>
 	<svelte:fragment slot="header">
-		<AppBar gridColumns="grid-cols-3" slotDefault="place-self-center" slotTrail="place-content-end">
-			<svelte:fragment slot="lead">
-				<img alt="Raccoon eating cheese" src="images/ma_cheese.png" class="w-14 rounded-xl" />
-			</svelte:fragment>
-			<p class="text-xl">TicTacToe</p>
-			<svelte:fragment slot="trail">
-				<button type="button" class="btn variant-filled rounded-xl" on:click={() => resetGame()}>
-					reset
-				</button>
-			</svelte:fragment>
-		</AppBar>
+		<Header />
 	</svelte:fragment>
 
 	<slot />
