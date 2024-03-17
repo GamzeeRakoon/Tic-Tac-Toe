@@ -38,7 +38,7 @@
 
 			const newWinner = calculateWinner(newSquares);
 
-			if (newWinner === 'X' || newWinner == 'O') {
+			if (newWinner === 'X' || newWinner == 'O' || newWinner == 'draw') {
 				socket.emit('gameOver', newWinner, newSquares);
 				return;
 			}
